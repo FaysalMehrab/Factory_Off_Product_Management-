@@ -1,0 +1,35 @@
+<div class="right-container">
+    <div class="table-container">
+        <h3>Available Amounts</h3>
+        <table>
+            <tr>
+                <th>Board Name</th>
+                <th>Available Amount</th>
+            </tr>
+            <?php
+            // Query to get the available amount for each board
+            $available_query = "
+                SELECT oe.board_name, 
+                       IFNULL(SUM(oe.entry_ammount), 0) AS total_entry, 
+                       IFNULL(SUM(ox.exit_ammount), 0) AS total_exit
+                FROM off_entry oe
+                LEFT JOIN off_exit ox ON oe.board_name = ox.board_name
+                GROUP BY oe.board_name
+            ";
+            $available_result = mysqli_query($connect, $available_query);
+
+            if (mysqli_num_rows($available_result) > 0) {
+                while($row = mysqli_fetch_assoc($available_result)) {
+                    $available_amount = $row['total_entry'] +$row['total_exit'];
+                    echo "<tr>
+                            <td>{$row['board_name']}</td>
+                            <td>{$available_amount}</td>
+                          </tr>";
+                }
+            } else {
+                echo "<tr><td colspan='2' style='text-align:center;'>No data available</td></tr>";
+            }
+            ?>
+        </table>
+    </div>
+</div>
